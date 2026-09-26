@@ -201,7 +201,12 @@ export async function calculateHawkHeader(
   }
 
   // Construct the string to sign according to Hawk spec
-  const macBaseString = `hawk.1.header\n${artifacts.ts}\n${artifacts.nonce}\n${artifacts.method}\n${artifacts.resource}\n${artifacts.host}\n${artifacts.port}\n${artifacts.hash}\n${artifacts.ext}\n`
+  let macBaseString = `hawk.1.header\n${artifacts.ts}\n${artifacts.nonce}\n${artifacts.method}\n${artifacts.resource}\n${artifacts.host}\n${artifacts.port}\n${artifacts.hash}\n${artifacts.ext}\n`
+
+  // When app is sent, the server adds app and dlg to the string it signs
+  if (options.app) {
+    macBaseString += `${options.app}\n${options.dlg || ""}\n`
+  }
 
   // Calculate MAC
   const mac = await hmacSign(options.key, macBaseString, options.algorithm)
